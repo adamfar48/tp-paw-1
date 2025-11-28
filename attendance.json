@@ -1,0 +1,116 @@
+[
+    {
+        "student_id": "1001",
+        "attendance": [
+            true,
+            true,
+            false,
+            true,
+            true,
+            true
+        ],
+        "participation": [
+            false,
+            true,
+            true,
+            false,
+            false,
+            false
+        ]
+    },
+    {
+        "student_id": "1002",
+        "attendance": [
+            true,
+            false,
+            false,
+            false,
+            false,
+            false
+        ],
+        "participation": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+        ]
+    },
+    {
+        "student_id": "1003",
+        "attendance": [
+            false,
+            false,
+            false,
+            true,
+            false,
+            false
+        ],
+        "participation": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+        ]
+    },
+    {
+        "student_id": "2497507328",
+        "attendance": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+        ],
+        "participation": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+        ]
+    },
+    {
+        "student_id": "24975073465",
+        "attendance": [
+            false,
+            false,
+            false,
+            true,
+            false,
+            false
+        ],
+        "participation": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+        ]
+    },
+    {
+        "student_id": "24975073465657",
+        "attendance": [
+            true,
+            false,
+            false,
+            false,
+            false,
+            false
+        ],
+        "participation": [
+            true,
+            false,
+            false,
+            false,
+            false,
+            false
+        ]
+    }
+]

@@ -1,0 +1,34 @@
+[
+    {
+        "student_id": "1001",
+        "name": "Ahmed Sara",
+        "group": "G1"
+        
+    },
+    {
+        "student_id": "1002",
+        "name": "Yacine Ali",
+        "group": "G2"
+    },
+    {
+        "student_id": "1003",
+        "name": "Houcine Rania",
+        "group": "G1"
+    },
+    {
+        "student_id": "2497507328",
+        "name": "sam lafoufou",
+        "group": "3"
+    },
+    {
+        "student_id": "24975073465",
+        "name": "adam",
+        "group": "3"
+    },
+   
+    {
+        "student_id": "24975073465657",
+        "name": "aimen",
+        "group": "3"
+    }
+]

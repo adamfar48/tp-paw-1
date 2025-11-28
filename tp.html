@@ -18,10 +18,12 @@
 
   <!-- === ATTENDANCE TABLE === -->
   <h1 id="attendance">Attendance Table</h1>
+
   <table id="attendanceTable">
     <tr>
-      <th>Last Name</th>
-      <th>First Name</th>
+      <th>Student ID</th>
+      <th>Name</th>
+      <th>Group</th>
       <th colspan="6">Sessions (S1–S6)</th>
       <th colspan="6">Participation (P1–P6)</th>
       <th>Absences</th>
@@ -30,8 +32,9 @@
     </tr>
 
     <tr>
-      <td>Ahmed</td>
-      <td>Sara</td>
+      <td>1001</td>
+      <td>Ahmed Sara</td>
+      <td>G1</td>
       <td><input type="checkbox" checked></td>
       <td><input type="checkbox" checked></td>
       <td><input type="checkbox"></td>
@@ -52,8 +55,9 @@
     </tr>
 
     <tr>
-      <td>Yacine</td>
-      <td>Ali</td>
+      <td>1002</td>
+      <td>Yacine Ali</td>
+      <td>G2</td>
       <td><input type="checkbox" checked></td>
       <td><input type="checkbox"></td>
       <td><input type="checkbox" checked></td>
@@ -74,8 +78,9 @@
     </tr>
 
     <tr>
-      <td>Houcine</td>
-      <td>Rania</td>
+      <td>1003</td>
+      <td>Houcine Rania</td>
+      <td>G1</td>
       <td><input type="checkbox" checked></td>
       <td><input type="checkbox" checked></td>
       <td><input type="checkbox"></td>
@@ -96,27 +101,33 @@
     </tr>
   </table>
 
-  <!-- === FORM TO ADD STUDENT === -->
-  <h1 id="add">Add New Student</h1>
-  <form id="studentForm" action="#" method="post">
-    <label for="studentId">Student ID:</label>
-    <input type="text" id="studentId" name="studentId">
-    <small class="error" id="idError"></small>
+  <!-- === EXERCISE 7 : Search + Sorting === -->
+  <div class="search-sort-container">
+    <input type="text" id="searchInput" placeholder="Search by Name...">
+    <button id="sortAbs">Sort by Absences (Ascending)</button>
+    <button id="sortPar">Sort by Participation (Descending)</button>
+    <p id="sortStatus"></p>
+  </div>
 
-    <label for="lastName">Last Name:</label>
-    <input type="text" id="lastName" name="lastName">
-    <small class="error" id="lastNameError"></small>
+  <!-- === EXERCISE 6 BUTTONS === -->
+  <div class="highlight-section">
+    <button id="highlightExcellent">🌟 Highlight Excellent Students</button>
+    <button id="resetColors">🔄 Reset Colors</button>
+  </div>
 
-    <label for="firstName">First Name:</label>
-    <input type="text" id="firstName" name="firstName">
-    <small class="error" id="firstNameError"></small>
+<form id="studentForm" action="add_student.php" method="post">
+  <label for="student_id">Student ID:</label>
+  <input type="text" id="student_id" name="student_id">
 
-    <label for="email">Email:</label>
-    <input type="email" id="email" name="email">
-    <small class="error" id="emailError"></small>
+  <label for="name">Name:</label>
+  <input type="text" id="name" name="name">
 
-    <button type="submit">Add Student</button>
-  </form>
+  <label for="group">Group:</label>
+  <input type="text" id="group" name="group">
+
+  <button type="submit">Add Student</button>
+</form>
+<div id="formMessage"></div>
 
   <!-- === REPORT SECTION === -->
   <div class="report-section">
@@ -125,7 +136,7 @@
     <canvas id="reportChart" width="300" height="300"></canvas>
   </div>
 
-  <!-- === JS Libraries & Script === -->
+  <!-- === JS LIBRARIES === -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="script.js"></script>

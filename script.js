@@ -1,180 +1,185 @@
-// === EXERCISE 1 : Update Attendance & Row Colors ===
+// === UTILITY: Update Attendance & Row Colors ===
 function updateAttendance() {
-  const rows = document.querySelectorAll("#attendanceTable tr");
-  rows.forEach((row, i) => {
-    if (i === 0) return;
+    $("#attendanceTable tr").each(function(index) {
+        if(index === 0) return; // skip header
 
-    const boxes = row.querySelectorAll("input[type='checkbox']");
-    const attendance = Array.from(boxes).slice(0, 6);
-    const participation = Array.from(boxes).slice(6, 12);
+        const boxes = $(this).find("input[type='checkbox']");
+        const attendance = boxes.slice(0, 6);
+        const participation = boxes.slice(6, 12);
 
-    const abs = attendance.length - attendance.filter(cb => cb.checked).length;
-    const par = participation.filter(cb => cb.checked).length;
+        const abs = 6 - attendance.filter((i, cb) => $(cb).prop("checked")).length;
+        const par = participation.filter((i, cb) => $(cb).prop("checked")).length;
 
-    row.querySelector(".abs").textContent = abs + " Abs";
-    row.querySelector(".par").textContent = par + " Par";
+        $(this).find(".abs").text(abs + " Abs");
+        $(this).find(".par").text(par + " Par");
 
-    row.classList.remove("good", "warning", "bad");
-    if (abs < 3) row.classList.add("good");
-    else if (abs >= 3 && abs <= 4) row.classList.add("warning");
-    else row.classList.add("bad");
+        $(this).removeClass("good warning bad");
+        if(abs < 3) $(this).addClass("good");
+        else if(abs <= 4) $(this).addClass("warning");
+        else $(this).addClass("bad");
 
-    const msg = row.querySelector(".msg");
-    if (abs < 3 && par >= 4)
-      msg.textContent = "Good attendance – Excellent participation";
-    else if (abs >= 3 && abs <= 4)
-      msg.textContent = "Warning – attendance low – You need to participate more";
-    else
-      msg.textContent = "Excluded – too many absences – You need to participate more";
-  });
+        const msg = $(this).find(".msg");
+        if(abs < 3 && par >= 4) msg.text("Good attendance – Excellent participation");
+        else if(abs >= 3 && abs <= 4) msg.text("Warning – attendance low – You need to participate more");
+        else msg.text("Excluded – too many absences – You need to participate more");
+    });
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  updateAttendance();
-  document.querySelectorAll("input[type='checkbox']").forEach(cb =>
-    cb.addEventListener("change", updateAttendance)
-  );
-});
+// === LOAD STUDENTS + ATTENDANCE FROM DATABASE ===
+function loadStudents() {
+    $.getJSON("get_students.php", function(data) {
+        $("#attendanceTable tr:gt(0)").remove(); // remove old rows
+        data.forEach(s => {
+            const row = $("<tr>");
+            row.append($("<td>").text(s.student_id));
+            row.append($("<td>").text(s.name));
+            row.append($("<td>").text(s.group_name));
 
-// === EXERCISE 2–3 : Validation + Add Student ===
-document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("studentForm");
-  const table = document.getElementById("attendanceTable");
+            for(let i=0;i<6;i++) row.append($("<td>").html('<input type="checkbox" '+(s.attendance && s.attendance[i] ? 'checked' : '')+'>'));
+            for(let i=0;i<6;i++) row.append($("<td>").html('<input type="checkbox" '+(s.participation && s.participation[i] ? 'checked' : '')+'>'));
 
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
+            row.append($("<td>").addClass("abs"));
+            row.append($("<td>").addClass("par"));
+            row.append($("<td>").addClass("msg"));
 
-    const studentId = document.getElementById("studentId");
-    const lastName = document.getElementById("lastName");
-    const firstName = document.getElementById("firstName");
-    const email = document.getElementById("email");
+            $("#attendanceTable").append(row);
+        });
 
-    const idError = document.getElementById("idError");
-    const lastError = document.getElementById("lastNameError");
-    const firstError = document.getElementById("firstNameError");
-    const emailError = document.getElementById("emailError");
+        // Attach checkbox listener
+        $("#attendanceTable input[type='checkbox']").off("change").on("change", function(){
+            updateAttendance();
+            saveAttendance();
+        });
 
-    [idError, lastError, firstError, emailError].forEach(e => e.textContent = "");
-    [studentId, lastName, firstName, email].forEach(i => i.classList.remove("error-border"));
+        updateAttendance();
+    });
+}
 
-    let valid = true;
+// === SAVE ATTENDANCE TO DATABASE ===
+function saveAttendance() {
+    const attendanceData = [];
+    $("#attendanceTable tr").slice(1).each(function(){
+        const student_id = $(this).find("td:first").text();
+        const attendance = [];
+        const participation = [];
+        $(this).find("td").slice(3,9).each(function(){ attendance.push($(this).find("input").prop("checked")); });
+        $(this).find("td").slice(9,15).each(function(){ participation.push($(this).find("input").prop("checked")); });
 
-    if (studentId.value.trim() === "" || !/^[0-9]+$/.test(studentId.value.trim())) {
-      idError.textContent = "Student ID must contain only numbers.";
-      studentId.classList.add("error-border");
-      valid = false;
-    }
-    if (lastName.value.trim() === "" || !/^[A-Za-z]+$/.test(lastName.value.trim())) {
-      lastError.textContent = "Last Name must contain only letters.";
-      lastName.classList.add("error-border");
-      valid = false;
-    }
-    if (firstName.value.trim() === "" || !/^[A-Za-z]+$/.test(firstName.value.trim())) {
-      firstError.textContent = "First Name must contain only letters.";
-      firstName.classList.add("error-border");
-      valid = false;
-    }
-    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (email.value.trim() === "" || !emailPattern.test(email.value.trim())) {
-      emailError.textContent = "Please enter a valid email address.";
-      email.classList.add("error-border");
-      valid = false;
-    }
-
-    if (valid) {
-      const newRow = document.createElement("tr");
-      newRow.innerHTML = `
-        <td>${lastName.value}</td>
-        <td>${firstName.value}</td>
-        ${Array(6).fill('<td><input type="checkbox"></td>').join("")}
-        ${Array(6).fill('<td><input type="checkbox"></td>').join("")}
-        <td class="abs"></td>
-        <td class="par"></td>
-        <td class="msg"></td>
-      `;
-      table.appendChild(newRow);
-      newRow.querySelectorAll("input[type='checkbox']").forEach(cb =>
-        cb.addEventListener("change", updateAttendance)
-      );
-      updateAttendance();
-      alert("✅ Student added successfully!");
-      form.reset();
-    }
-  });
-});
-
-// === EXERCISE 4 : Generate Attendance Report + Donut Chart ===
-document.addEventListener("DOMContentLoaded", () => {
-  const reportBtn = document.getElementById("generateReport");
-  const reportOutput = document.getElementById("reportOutput");
-  const ctx = document.getElementById("reportChart");
-  let reportChart = null;
-
-  reportBtn.addEventListener("click", () => {
-    const rows = document.querySelectorAll("#attendanceTable tr");
-    let studentCount = 0, totalAbsences = 0, totalParticipation = 0, participationCount = 0;
-
-    rows.forEach((row, i) => {
-      if (i === 0) return;
-      studentCount++;
-      const absCell = row.querySelector(".abs");
-      const parCell = row.querySelector(".par");
-      if (absCell && parCell) {
-        const absValue = parseInt(absCell.textContent) || 0;
-        const parValue = parseInt(parCell.textContent) || 0;
-        totalAbsences += absValue;
-        totalParticipation += parValue;
-        participationCount++;
-      }
+        attendanceData.push({ student_id, attendance, participation });
     });
 
-    const avgParticipation = participationCount > 0
-      ? (totalParticipation / participationCount).toFixed(2)
-      : 0;
-    reportOutput.innerHTML = `
-      🧾 <b>Class Report</b><br>
-      Total Students: ${studentCount}<br>
-      Total Absences: ${totalAbsences}<br>
-      Average Participation: ${avgParticipation} / 6
-    `;
-
-    const totalPossible = studentCount * 6;
-    const totalPresent = totalPossible - totalAbsences;
-    if (reportChart) reportChart.destroy();
-
-    reportChart = new Chart(ctx, {
-      type: "doughnut",
-      data: {
-        labels: ["Absences", "Presences"],
-        datasets: [{
-          data: [totalAbsences, totalPresent],
-          backgroundColor: ["#ff6384", "#36a2eb"]
-        }]
-      },
-      options: {
-        responsive: true,
-        cutout: "60%",
-        plugins: {
-          legend: { position: "bottom" },
-          title: { display: true, text: "Attendance Summary" }
-        }
-      }
+    $.ajax({
+        url: "save_attendance.php",
+        method: "POST",
+        data: JSON.stringify({ attendance: attendanceData }),
+        contentType: "application/json",
+        success: function(resp){ console.log("Attendance saved", resp); }
     });
-  });
-});
+}
 
-// === EXERCISE 5 : jQuery Hover & Click ===
+// === DOCUMENT READY ===
 $(document).ready(function() {
-  $("#attendanceTable tr").hover(
-    function() { if ($(this).index() !== 0) $(this).addClass("highlight"); },
-    function() { $(this).removeClass("highlight"); }
-  );
+    loadStudents();
 
-  $("#attendanceTable tr").click(function() {
-    if ($(this).index() === 0) return;
-    const lastName = $(this).find("td:nth-child(1)").text().trim();
-    const firstName = $(this).find("td:nth-child(2)").text().trim();
-    const absText = $(this).find(".abs").text().trim();
-    alert(`👩‍🎓 Student: ${firstName} ${lastName}\n📘 ${absText || "No absences recorded"}`);
-  });
+    // Add student form
+    $("#studentForm").submit(function(e) {
+        e.preventDefault();
+
+        const studentId = $("#student_id").val().trim();
+        const name = $("#name").val().trim();
+        const group = $("#group").val().trim();
+
+        $(".error").remove();
+        $("#formMessage").text("");
+
+        let valid = true;
+        if(!/^[0-9]+$/.test(studentId)){ $("#student_id").after('<small class="error">Student ID must contain only digits.</small>'); valid=false; }
+        if(!/^[A-Za-z ]+$/.test(name)){ $("#name").after('<small class="error">Name must contain only letters and spaces.</small>'); valid=false; }
+        if(!/^[A-Za-z0-9-_]+$/.test(group)){ $("#group").after('<small class="error">Group must contain letters/numbers only.</small>'); valid=false; }
+        if(!valid) return;
+
+        // Save via PHP
+        $.post("add_student.php", { student_id: studentId, name, group_name: group }, function(){
+            $("#formMessage").html('<span style="color:green;">✅ Student added successfully!</span>');
+            $("#studentForm")[0].reset();
+            loadStudents();
+        });
+    });
+
+    // Report Chart
+$("#generateReport").click(function(){
+    $.getJSON("get_report.php", function(data){
+        $("#reportOutput").html(`🧾 <b>Class Report</b><br>
+            Total Students: ${data.totalStudents}<br>
+            Total Absences: ${data.totalAbsences}<br>
+            Average Participation: ${data.averageParticipation}/6`
+        );
+
+        const totalPossible = data.totalStudents * 6;
+        const totalPresent = totalPossible - data.totalAbsences;
+
+        if(reportChart) reportChart.destroy();
+        const ctx = $("#reportChart");
+        reportChart = new Chart(ctx, {
+            type: "doughnut",
+            data: {
+                labels: ["Absences","Presences"],
+                datasets:[{ data:[data.totalAbsences,totalPresent], backgroundColor:["#ff6384","#36a2eb"] }]
+            },
+            options:{
+                responsive:true,
+                cutout:"60%",
+                plugins:{
+                    legend:{ position:"bottom" },
+                    title:{ display:true, text:"Attendance Summary" }
+                }
+            }
+        });
+    });
+});
+
+    // Hover + Click
+    $("#attendanceTable tr").hover(
+        function(){ if($(this).index()!==0) $(this).addClass("highlight"); },
+        function(){ $(this).removeClass("highlight"); }
+    );
+    $("#attendanceTable tr").click(function(){
+        if($(this).index()===0) return;
+        const name = $(this).find("td:nth-child(2)").text();
+        const studentId = $(this).find("td:nth-child(1)").text();
+        const absText = $(this).find(".abs").text();
+        alert(`👩‍🎓 Student: ${name} (ID: ${studentId})\n📘 ${absText || "No absences recorded"}`);
+    });
+
+    // Highlight Excellent / Reset
+    $("#highlightExcellent").click(function(){
+        updateAttendance();
+        $("#attendanceTable tr").slice(1).each(function(){
+            const absNum = parseInt($(this).find(".abs").text()) || 0;
+            if(absNum < 3) $(this).fadeOut(150).fadeIn(150).addClass("highlight-excellent");
+        });
+    });
+    $("#resetColors").click(function(){
+        $("#attendanceTable tr").removeClass("highlight-excellent");
+        updateAttendance();
+    });
+
+    // Search
+    $("#searchInput").on("keyup", function(){
+        const val = $(this).val().toLowerCase();
+        $("#attendanceTable tr").slice(1).each(function(){
+            const name = $(this).find("td:nth-child(2)").text().toLowerCase();
+            $(this).toggle(name.includes(val));
+        });
+    });
+
+    // Sorting
+    function sortRows(compareFunc){
+        const rows = $("#attendanceTable tr").slice(1).get();
+        rows.sort(compareFunc);
+        rows.forEach(row=> $("#attendanceTable").append(row));
+        updateAttendance();
+    }
+    $("#sortAbs").click(function(){ sortRows((a,b)=> parseInt($(a).find(".abs").text()) - parseInt($(b).find(".abs").text())); $("#sortStatus").text("Currently sorted by absences (ascending)"); });
+    $("#sortPar").click(function(){ sortRows((a,b)=> parseInt($(b).find(".par").text()) - parseInt($(a).find(".par").text())); $("#sortStatus").text("Currently sorted by participation (descending)"); });
 });

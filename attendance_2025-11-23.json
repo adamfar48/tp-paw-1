@@ -1,0 +1,26 @@
+[
+    {
+        "student_id": "1001",
+        "status": "absent"
+    },
+    {
+        "student_id": "1002",
+        "status": "absent"
+    },
+    {
+        "student_id": "1003",
+        "status": "absent"
+    },
+    {
+        "student_id": "2497507328",
+        "status": "present"
+    },
+    {
+        "student_id": "24975073465",
+        "status": "present"
+    },
+    {
+        "student_id": "24975073465657",
+        "status": "present"
+    }
+]
